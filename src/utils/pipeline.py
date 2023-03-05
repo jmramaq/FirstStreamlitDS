@@ -1,7 +1,5 @@
 # Importación de librerías
-import sys 
 import os
-import seaborn as sns
 
 # Librerias ML
 from sklearn.preprocessing import MinMaxScaler
