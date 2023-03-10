@@ -130,6 +130,9 @@ if st.button(label="Predict"):
             predicted = 1
             sleep(5)
         
+        if visualizacion_seleccionada=='Descargar':
+            st.download_button("Press to Download",os.path.join(upload,'prediccion.csv'),'prediccion.csv',"text/csv",key='download-csv')
+        
         # Muestra de dataframe de acuerdo a parámentros seleccionados por usuario
         if agrupamiento_seleccionado == 'Sin agrupamiento' and visualizacion_seleccionada == 'Por pantalla' and predicted == 1:
             col1, col2 = st.columns([1,1])
