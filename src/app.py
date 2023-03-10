@@ -136,7 +136,7 @@ if st.button(label="Predict"):
             df_mensual = genera_agrupamiento(df, 0)
             
             plot, ax = plt.subplots()
-            ax = sns.lineplot(data= df_mensual, x="Mes", y="Prediccion")
+            ax = sns.lineplot(data= df_mensual, x="Mes", y="Prediccion", markers=True, marker='o')
             ax.set(ylim=(0,None))
             plt.title("Evolución del % de Ocupación previsto", loc='center')
             plt.ylabel("% Ocupación")
@@ -152,7 +152,7 @@ if st.button(label="Predict"):
             df_agrupado=genera_agrupamiento(df, 1)
 
             plot, ax = plt.subplots()
-            ax = sns.lineplot(data= df_mensual, x="Mes", y="Prediccion")
+            ax = sns.lineplot(data= df_mensual, x="Mes", y="Prediccion", markers=True, marker='o')
             ax.set(ylim=(0,150))
             plt.title("Evolución del % de Ocupación previsto", loc='center')
             plt.ylabel("% Ocupación")
@@ -167,35 +167,58 @@ if st.button(label="Predict"):
             df_agrupado=genera_agrupamiento(df, 2)
             
             plot, ax = plt.subplots()
-            ax = sns.lineplot(data= df_mensual, x="Mes", y="Prediccion")
-            ax.set(ylim=(0,150))
+            ax = sns.lineplot(data= df_mensual, x="Mes", y="Prediccion", markers=True, marker='o')
+            ax.set(ylim=(0,100))
             plt.title("Evolución del % de Ocupación previsto", loc='center')
             plt.ylabel("% Ocupación")
             plt.xlabel("Mes")
             
-            col1.dataframe(df_agrupado.style.background_gradient(gmap=df_agrupado['Prediccion'], cmap='YlOrRd'), use_container_width=True)
+            col1.dataframe(df_agrupado.style.background_gradient(subset=['Prediccion'], cmap='YlOrRd'), use_container_width=True)
             col2.pyplot(fig=plot)
 
 
-# Muestra gráfico de ocupación anual
+# Muestra gráfico de ocupación por especialidad
 if agrupamiento_seleccionado == 'Por especialidad y mes' and visualizacion_seleccionada == 'Por pantalla' and predicted == 1:
     df_grouped_year = df_agrupado.loc[df_agrupado["Prediccion"]>0]
+    specs = df_grouped_year["AreaClinica"].unique()
+    columnas = 2
+    filas = (len(specs)//columnas)
+    pos = 0
     
-    fig = plt.figure()
-    fig = sns.FacetGrid(data= df_agrupado, col='AreaClinica', col_wrap=3, margin_titles=True)
-    fig.map_dataframe(sns.lineplot, "Mes", "Prediccion")
-    fig.set_axis_labels("Mes", "% Ocupación previsto")
-    st.pyplot(fig)
-
-
-# Muestra gráfico de ocupación para primer cuatrimestre
-if agrupamiento_seleccionado == 'Por especialidad y mes' and visualizacion_seleccionada == 'Por pantalla' and predicted == 1:
-    df_groupedQ1 = df_agrupado.loc[(df_agrupado["Mes"]<5)&(df_agrupado["Prediccion"]>0)]
+    plot, ax = plt.subplots(filas, columnas, figsize=(10,30))
+    plot.tight_layout(pad=5.0)
+    while pos< len(specs)-1:
+        for i in range(filas):
+            for j in range(columnas):
+                sns.lineplot(data=df_grouped_year[df_grouped_year["AreaClinica"]==specs[pos]], x="Mes", y="Prediccion", ax=ax[i,j], markers=True, marker='o')
+                ax[i,j].set(ylim=(0,100))
+                ax[i,j].set_title(specs[pos])
+                ax[i,j].set_xlabel("")
+                ax[i,j].set_ylabel("% Ocupación")
+                pos +=1
     
-    fig = plt.figure()
-    fig = sns.FacetGrid(data= df_groupedQ1, col='AreaClinica', col_wrap=5, margin_titles=True)
-    fig.map_dataframe(sns.barplot, "Mes", "Prediccion", width=0.2)
-    fig.set_axis_labels("Mes", "% Ocupación previsto")
-    st.pyplot(fig)
+    st.pyplot(plot)
+
+# Muestra gráfico de ocupación por medico
+elif agrupamiento_seleccionado == 'Por médico y mes' and visualizacion_seleccionada == 'Por pantalla' and predicted == 1:
+    df_grouped_year = df_agrupado.loc[df_agrupado["Prediccion"]>0]
+    docs = df_grouped_year["DoctorID"].unique()
+    columnas = 2
+    filas = (len(docs)//columnas)
+    pos = 0
+
+    plot, ax = plt.subplots(filas, columnas, figsize=(15,50))
+    plot.tight_layout(pad=3.0)
+    while pos< len(docs)-1:
+        for i in range(filas):
+            for j in range(columnas):
+                sns.lineplot(data=df_grouped_year[df_grouped_year["DoctorID"]==docs[pos]], x="Mes", y="Prediccion", ax=ax[i,j], markers=True, marker='o')
+                ax[i,j].set(ylim=(0,100))
+                ax[i,j].set_title('Dr. '+str(docs[pos]))
+                ax[i,j].set_xlabel("")
+                ax[i,j].set_ylabel("% Ocupación")
+                pos +=1
+    
+    st.pyplot(plot)
        
 output = 0
